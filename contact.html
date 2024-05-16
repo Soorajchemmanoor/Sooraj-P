@@ -188,22 +188,26 @@
                             <div class="contact-area bg-light-white-2">
                                 <h5 class="contact-title">I'm always open to discuss about any web projects</h5><br/>
                                 <!-- <h5 class="contact-title-b">Contact me for Design/Development Work, Mentorship or partnerships.</h5> -->
-                                <form class="contact-form" action="https://formspree.io/f/xoqrgaab" method="post">
+                                <form class="contact-form" onsubmit="submitForm(event)">
                                     <div class="form-input-item mb-60">
                                         <label class="input-lebel name">name *</label>
-                                        <input name="name" class="input-box name" type="text" required>
+                                        <input name="name" id="name" class="input-box " type="text" >
                                     </div>
                                     <div class="form-input-item mb-60">
                                         <label class="input-lebel gmail">Email *</label>
-                                        <input name="email" class="input-box gmail" type="Email" required>
+                                        <input name="email" id="email" class="input-box " type="text" >
+                                    </div>
+                                    <div class="form-input-item mb-60">
+                                        <label class="input-lebel phone">Phone *</label>
+                                        <input name="tel" id="phone" class="input-box " type="text" >
                                     </div>
                                     <div class="form-input-item mb-40">
                                         <label class="input-lebel message">Message *</label>
-                                        <textarea name="message" class="input-box message" cols="30"
+                                        <textarea name="message" id="message" class="input-box " cols="30"
                                             rows="10"></textarea>
                                     </div>
                                     <div class="form-btn-wrap">
-                                        <button type="submit" value="Send" class="form-btn">submit</button>
+                                        <button type="button" class="form-btn" onclick="validateForm()" >submit</button>
                                     </div>
                                 </form>
                             </div>
@@ -287,8 +291,85 @@
 
     </div>
 
+    <script>
+        function validateForm() {
+            var name = document.getElementById('name').value.trim();
+            var email = document.getElementById('email').value.trim();
+            var phone = document.getElementById('phone').value.trim();
+            var message = document.getElementById('message').value.trim();
+            var errorMessages = [];
 
+            // Validate Name
+            if (!name.match(/^[a-zA-Z\s]*$/)) {
+                errorMessages.push("Name must contain only alphabets and spaces.");
+            } else if (name.length < 3 || name.length > 30) {
+                errorMessages.push("Name must be between 3 and 30 characters long.");
+            }
 
+            // Validate Email
+            if (!email.match(/^[\w-]+(\.[\w-]+)*@([a-zA-Z0-9-]+\.)+([a-zA-Z]{2,})+$/)) {
+                errorMessages.push("Invalid email format.");
+            } else if (email.includes("test.com")) {
+                errorMessages.push("Email domain cannot be 'test.com'.");
+            }
+
+            // Validate Phone Number
+            if (!phone.match(/^\d{10}$/)) {
+                errorMessages.push("Phone number must be a 10-digit number.");
+            }
+
+            // Validate Message
+            if (message.length < 5 || message.length > 200) {
+                errorMessages.push("Message must be between 5 and 200 characters long.");
+            }
+
+            // Display Error Messages if any
+            if (errorMessages.length > 0) {
+                var errorMessage = errorMessages.join("\n");
+                alert(errorMessage);
+                return false; // Prevent form submission
+            }
+
+            // Form is valid, allow submission
+            submitToWeb3Forms(name, email, phone, message);
+            return true;
+        }
+
+        function submitToWeb3Forms(name, email, phone, message) {
+            // Prepare data to send
+            var data = {
+                name: name,
+                email: email,
+                phone: phone,
+                message: message
+            };
+
+            // Send data to Web3Forms API endpoint
+            fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    apikey: 'ea5bd710-2b19-4e6f-928d-62eef9863c01', // Replace with your Web3Forms API key
+                    ...data
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Form submitted successfully!");
+                    document.querySelector('.contact-form').reset(); // Reset form fields
+                } else {
+                    alert("Error submitting form. Please try again later.");
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert("Error submitting form. Please try again later.");
+            });
+        }
+    </script>
 
     <!-- JS here -->
     <script src="assets/js/jquery.min.js"></script>
